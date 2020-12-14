@@ -14,12 +14,16 @@ export (int) var MAX_SLOPE_ANGLE = 46
 # Vector2(x = 0, y = 0), not moving when start.
 var motion = Vector2.ZERO
 
+onready var sprite = $Sprite
+onready var spriteAnimator = $SpriteAnimator
+
 
 """
 FUNC _PHYSICS_PROCESS()
 
-Every physics frame. For moving the character. Order of the functions is
-important.
+Every physics frame. Get input, apply acceleration, apply friction, see if it is 
+jumping, apply gravity, play the animation and then move the character.
+Order of the functions its important.
 """
 func _physics_process(delta: float) -> void:
 	var input_vector = get_input_vector()
@@ -27,6 +31,7 @@ func _physics_process(delta: float) -> void:
 	apply_friction(input_vector)
 	jump_check()
 	apply_gravity(delta)
+	update_animations(input_vector)
 	# Move the character.
 	move()
 		
@@ -94,6 +99,28 @@ func apply_gravity(delta):
 		motion.y += GRAVITY * delta
 		# Prevents to fall faster than jump_force. Clamps vertical speed.
 		motion.y = min(motion.y, JUMP_FORCE)
+
+
+"""
+FUNC UPDATE_ANIMATIONS()
+
+If input_vector different than 0, pick the sign of the input to know if 
+scale.x goes to left or right and then play the run animation in the good 
+direction.
+If the input_vector = 0 it means that the character is not moving, play the 
+idle animation then.
+If character not on floor play jump animation.
+"""
+func update_animations(input_vector):
+	if input_vector.x != 0:
+		sprite.scale.x = sign(input_vector.x)
+		spriteAnimator.play("Run")
+	else: 
+		spriteAnimator.play("Idle")
+		
+	if not is_on_floor():
+		spriteAnimator.play("Jump")
+
 
 """
 FUNC MOVE()
