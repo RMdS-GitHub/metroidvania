@@ -43,4 +43,9 @@ position = Vector2( 64, 124.945 )
 current = true
 smoothing_enabled = true
 
+[node name="terrain" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="terrain"]
+polygon = PoolVector2Array( -64, 0, -48, 0, -48, 213, 144, 213, 176, 176, 192, 176, 192, 192, 256, 192, 288, 208, 304, 208, 304, 0, 320, 0, 320, 240, -64, 240 )
+
 [editable path="Player"]

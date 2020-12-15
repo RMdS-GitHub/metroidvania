@@ -9,10 +9,13 @@ export (int) var MAX_SPEED = 64
 export (float) var FRICTION = 0.25
 export (int) var GRAVITY = 200
 export (int) var JUMP_FORCE = 128
-export (int) var MAX_SLOPE_ANGLE = 46
+export (int) var MAX_SLOPE_ANGLE = 85
 
 # Vector2(x = 0, y = 0), not moving when start.
 var motion = Vector2.ZERO
+
+# Variable so that we can jump when move_and_slide_with_snap()
+var snap_vector = Vector2.ZERO
 
 onready var sprite = $Sprite
 onready var spriteAnimator = $SpriteAnimator
@@ -21,7 +24,8 @@ onready var spriteAnimator = $SpriteAnimator
 """
 FUNC _PHYSICS_PROCESS()
 
-Every physics frame. Get input, apply acceleration, apply friction, see if it is 
+Every physics frame. Get input, apply acceleration, apply friction, 
+, upadte_snap_vector for the slopes, see if it is 
 jumping, apply gravity, play the animation and then move the character.
 Order of the functions its important.
 """
@@ -29,6 +33,7 @@ func _physics_process(delta: float) -> void:
 	var input_vector = get_input_vector()
 	apply_horizontal_force(input_vector, delta)
 	apply_friction(input_vector)
+	update_snap_vector()
 	jump_check()
 	apply_gravity(delta)
 	update_animations(input_vector)
@@ -75,6 +80,17 @@ func apply_friction(input_vector):
 
 
 """
+FUNC UPDATE_SNAP_VECTOR()
+
+This function is to avoid that the character can't jump when using 
+move_and_slide_with_snap().
+"""
+func update_snap_vector():
+	if is_on_floor():
+		snap_vector = Vector2.DOWN
+
+
+"""
 FUNC JUMP_CHECK()
 
 Check if is on the ground and just pressed jump key.
@@ -83,6 +99,9 @@ func jump_check():
 	if is_on_floor():
 		if Input.is_action_just_pressed("ui_up"):
 			motion.y = -JUMP_FORCE
+			# Without this no jump with move_and_slide_with_snap().
+			snap_vector = Vector2.ZERO
+	
 	# Player allowed to control jump height. 
 	else:
 		# Makes sure we are going up still and jump is cut in halg if released.
@@ -130,9 +149,10 @@ Motion represents velocity how it changes over times.
 No need to apply delta but ACCELERATION and GRAVITY yes.
 In a plateformer we need a FLOOR_NORMAL to tell which direction is down. Which
 direction the floor faces which is UP.
+We will use move_and_slide_with_snap for the slopes.
 """
 func move():
-	motion = move_and_slide(motion, Vector2.UP)
+	motion = move_and_slide_with_snap(motion, snap_vector * 4, Vector2.UP, true, 4, deg2rad(MAX_SLOPE_ANGLE))
 	
 	
 	
