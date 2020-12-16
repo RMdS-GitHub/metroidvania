@@ -119,7 +119,7 @@ FUNC APPLY_GRAVITY()
 
 """
 func apply_gravity(delta):
-	#if not is_on_floor():
+	if not is_on_floor():
 		motion.y += GRAVITY * delta
 		# Prevents to fall faster than jump_force. Clamps vertical speed.
 		motion.y = min(motion.y, JUMP_FORCE)
