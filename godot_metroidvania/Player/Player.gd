@@ -13,9 +13,10 @@ export (int) var MAX_SLOPE_ANGLE = 85
 
 # Vector2(x = 0, y = 0), not moving when start.
 var motion = Vector2.ZERO
-
 # Variable so that we can jump when move_and_slide_with_snap()
 var snap_vector = Vector2.ZERO
+# To solve the problem with the slopes.
+var just_jumped = false
 
 onready var sprite = $Sprite
 onready var spriteAnimator = $SpriteAnimator
@@ -30,6 +31,8 @@ jumping, apply gravity, play the animation and then move the character.
 Order of the functions its important.
 """
 func _physics_process(delta: float) -> void:
+	# Every sinle frame.
+	just_jumped = false
 	var input_vector = get_input_vector()
 	apply_horizontal_force(input_vector, delta)
 	apply_friction(input_vector)
@@ -39,6 +42,7 @@ func _physics_process(delta: float) -> void:
 	update_animations(input_vector)
 	# Move the character.
 	move()
+	
 		
 		
 """
@@ -99,6 +103,7 @@ func jump_check():
 	if is_on_floor():
 		if Input.is_action_just_pressed("ui_up"):
 			motion.y = -JUMP_FORCE
+			just_jumped = true
 			# Without this no jump with move_and_slide_with_snap().
 			snap_vector = Vector2.ZERO
 	
@@ -150,9 +155,28 @@ No need to apply delta but ACCELERATION and GRAVITY yes.
 In a plateformer we need a FLOOR_NORMAL to tell which direction is down. Which
 direction the floor faces which is UP.
 We will use move_and_slide_with_snap for the slopes.
+After moving we need to check if we are in the air.
 """
 func move():
-	motion = move_and_slide_with_snap(motion, snap_vector * 4, Vector2.UP, true, 4, deg2rad(MAX_SLOPE_ANGLE))
+	var was_in_air = not is_on_floor()
+	var was_on_floor = is_on_floor()
+	# Motion before it gets affected by move_and_slide_with_snap.
+	var last_motion = motion
+	var last_position = position
 	
+	motion = move_and_slide_with_snap(motion, snap_vector * 4, Vector2.UP, true, 4, deg2rad(MAX_SLOPE_ANGLE))
+	# Landing
+	if was_in_air and is_on_floor():
+		# If we land on a slope keep previous momentum.
+		motion.x = last_motion.x
+	
+	# If we were on the floor and not on the floor, just left ground.
+	if was_on_floor and not is_on_floor() and not just_jumped:
+		motion.y = 0
+		position.y = last_position.y
+		
+	# Prevent Sliding (hack)
+	if is_on_floor() and get_floor_velocity().length() == 0 and abs(motion.x) < 1:
+		position.x = last_position.x
 	
 	
