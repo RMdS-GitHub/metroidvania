@@ -4,6 +4,8 @@ PLAYER.GD
 """
 extends KinematicBody2D
 
+const DustEffetc = preload("res://Effects/DustEffect.tscn")
+
 export (int) var ACCELERATION = 512
 export (int) var MAX_SPEED = 64
 export (float) var FRICTION = 0.25
@@ -20,6 +22,7 @@ var just_jumped = false
 
 onready var sprite = $Sprite
 onready var spriteAnimator = $SpriteAnimator
+onready var coyoteJumpTimer = $CoyoteJumpTimer
 
 
 """
@@ -43,8 +46,20 @@ func _physics_process(delta: float) -> void:
 	# Move the character.
 	move()
 	
-		
-		
+
+"""
+FUNC CREATE_DUST_EFFECT()
+
+We need to add the function where there is movement.
+"""
+func create_dust_effect():
+	var dust_position = global_position
+	# For creation with a ramdom slightly amount.
+	dust_position.x += rand_range(-4, 4)
+	var dustEffect = DustEffetc.instance()
+	get_tree().current_scene.add_child(dustEffect)
+	dustEffect.global_position = dust_position
+
 """
 FUNC GET_INPUT_VECTOR()
 
@@ -100,7 +115,7 @@ FUNC JUMP_CHECK()
 Check if is on the ground and just pressed jump key.
 """
 func jump_check():
-	if is_on_floor():
+	if is_on_floor() or coyoteJumpTimer.time_left > 0:
 		if Input.is_action_just_pressed("ui_up"):
 			motion.y = -JUMP_FORCE
 			just_jumped = true
@@ -169,11 +184,13 @@ func move():
 	if was_in_air and is_on_floor():
 		# If we land on a slope keep previous momentum.
 		motion.x = last_motion.x
+		create_dust_effect()
 	
 	# If we were on the floor and not on the floor, just left ground.
 	if was_on_floor and not is_on_floor() and not just_jumped:
 		motion.y = 0
 		position.y = last_position.y
+		coyoteJumpTimer.start()
 		
 	# Prevent Sliding (hack)
 	if is_on_floor() and get_floor_velocity().length() == 0 and abs(motion.x) < 1:
