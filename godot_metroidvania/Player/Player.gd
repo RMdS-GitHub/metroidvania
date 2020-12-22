@@ -151,10 +151,17 @@ idle animation then.
 If character not on floor play jump animation.
 """
 func update_animations(input_vector):
+	# Sprite will face same side of the mouse.
+	sprite.scale.x = sign(get_local_mouse_position().x)
 	if input_vector.x != 0:
-		sprite.scale.x = sign(input_vector.x)
 		spriteAnimator.play("Run")
+		# To correct player moving forward anim when input is backward.
+		# It's a calculation resulting in 1 or -1 to know left or right.
+		# Going backwards will play animation in reverse.
+		spriteAnimator.playback_speed = input_vector.x * sprite.scale.x
 	else: 
+		# Idle animation should never play in reverse, always forward.
+		spriteAnimator.playback_speed = 1
 		spriteAnimator.play("Idle")
 		
 	if not is_on_floor():
