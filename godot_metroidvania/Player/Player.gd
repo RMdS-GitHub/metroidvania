@@ -5,6 +5,7 @@ PLAYER.GD
 extends KinematicBody2D
 
 const DustEffetc = preload("res://Effects/DustEffect.tscn")
+const PlayerBullet = preload("res://Player/PlayerBullet.tscn")
 
 export (int) var ACCELERATION = 512
 export (int) var MAX_SPEED = 64
@@ -12,6 +13,7 @@ export (float) var FRICTION = 0.25
 export (int) var GRAVITY = 200
 export (int) var JUMP_FORCE = 128
 export (int) var MAX_SLOPE_ANGLE = 85
+export (int) var BULLET_SPEED = 250
 
 # Vector2(x = 0, y = 0), not moving when start.
 var motion = Vector2.ZERO
@@ -23,6 +25,8 @@ var just_jumped = false
 onready var sprite = $Sprite
 onready var spriteAnimator = $SpriteAnimator
 onready var coyoteJumpTimer = $CoyoteJumpTimer
+onready var gun = $Sprite/PlayerGun
+onready var muzzle = $Sprite/PlayerGun/Sprite/Muzzle
 
 
 """
@@ -46,19 +50,34 @@ func _physics_process(delta: float) -> void:
 	# Move the character.
 	move()
 	
+	if Input.is_action_just_pressed("fire"):
+		fire_bullet()
+
+
+"""
+FUNC FIRE_BULLET()
+
+"""
+func fire_bullet():
+	var bullet = Utils.instance_scene_on_main(PlayerBullet, muzzle.global_position)
+	# Pointing to the right, but rotating as the gun rotates.
+	bullet.velocity = Vector2.RIGHT.rotated(gun.rotation) * BULLET_SPEED
+	bullet.velocity.x *= sprite.scale.x
+	bullet.rotation = bullet.velocity.angle()
+
 
 """
 FUNC CREATE_DUST_EFFECT()
 
 We need to add the function where there is movement.
+Use autoload to instance the DustEffetc scene.
 """
 func create_dust_effect():
 	var dust_position = global_position
 	# For creation with a ramdom slightly amount.
 	dust_position.x += rand_range(-4, 4)
-	var dustEffect = DustEffetc.instance()
-	get_tree().current_scene.add_child(dustEffect)
-	dustEffect.global_position = dust_position
+	Utils.instance_scene_on_main(DustEffetc, dust_position)
+
 
 """
 FUNC GET_INPUT_VECTOR()
