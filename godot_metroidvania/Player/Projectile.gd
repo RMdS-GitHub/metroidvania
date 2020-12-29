@@ -20,5 +20,6 @@ FUNC _ON_VISIBILITYNOTIFIER2D_VIEWPORT_EXITED()
 
 Signal from VisibilyNotifier2D.
 """
+# warning-ignore:unused_argument
 func _on_VisibilityNotifier2D_viewport_exited(viewport: Viewport) -> void:
 	queue_free()
