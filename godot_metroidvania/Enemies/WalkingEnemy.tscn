@@ -9,7 +9,6 @@ extents = Vector2( 2, 6 )
 
 [node name="WalkingEnemy" instance=ExtResource( 1 )]
 script = ExtResource( 3 )
-WALKING_DIRECTION = 1
 
 [node name="Sprite" parent="." index="0"]
 position = Vector2( 0, -9 )
@@ -22,15 +21,15 @@ position = Vector2( 0, -6 )
 shape = SubResource( 1 )
 
 [node name="FloorLeft" type="RayCast2D" parent="." index="3"]
-position = Vector2( -2, 0 )
+position = Vector2( -2, -1 )
 enabled = true
-cast_to = Vector2( 0, 6 )
+cast_to = Vector2( 0, 7 )
 collision_mask = 2
 
 [node name="FloorRight" type="RayCast2D" parent="." index="4"]
-position = Vector2( 2, 0 )
+position = Vector2( 2, -1 )
 enabled = true
-cast_to = Vector2( 0, 6 )
+cast_to = Vector2( 0, 7 )
 collision_mask = 2
 
 [node name="WallLeft" type="RayCast2D" parent="." index="5"]
