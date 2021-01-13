@@ -5,6 +5,7 @@ PLAYER.GD
 extends KinematicBody2D
 
 const DustEffetc = preload("res://Effects/DustEffect.tscn")
+const JumpEffect = preload("res://Effects/JumpEffect.tscn")
 const PlayerBullet = preload("res://Player/PlayerBullet.tscn")
 
 export (int) var ACCELERATION = 512
@@ -139,6 +140,7 @@ Check if is on the ground and just pressed jump key.
 func jump_check():
 	if is_on_floor() or coyoteJumpTimer.time_left > 0:
 		if Input.is_action_just_pressed("ui_up"):
+			Utils.instance_scene_on_main(JumpEffect, global_position)
 			motion.y = -JUMP_FORCE
 			just_jumped = true
 			# Without this no jump with move_and_slide_with_snap().
@@ -213,7 +215,7 @@ func move():
 	if was_in_air and is_on_floor():
 		# If we land on a slope keep previous momentum.
 		motion.x = last_motion.x
-		create_dust_effect()
+		Utils.instance_scene_on_main(JumpEffect, global_position)
 	
 	# If we were on the floor and not on the floor, just left ground.
 	if was_on_floor and not is_on_floor() and not just_jumped:
