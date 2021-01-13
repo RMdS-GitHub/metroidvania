@@ -52,4 +52,7 @@ position = Vector2( 1.19209e-07, -7 )
 rotation = 0.00294211
 shape = SubResource( 2 )
 
+[node name="EnemyStats" parent="." index="8"]
+max_health = 3
+
 [editable path="Hurtbox"]

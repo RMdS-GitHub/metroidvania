@@ -30,6 +30,7 @@ func _ready() -> void:
 FUNC _PHYSICS_PROCESS()
 
 """
+# warning-ignore:unused_argument
 func _physics_process(delta: float) -> void:
 	match state:
 		DIRECTION.RIGHT:
