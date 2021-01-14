@@ -16,6 +16,7 @@ export (int) var JUMP_FORCE = 128
 export (int) var MAX_SLOPE_ANGLE = 85
 export (int) var BULLET_SPEED = 250
 
+var invincible = false setget set_invincible
 # Vector2(x = 0, y = 0), not moving when start.
 var motion = Vector2.ZERO
 # Variable so that we can jump when move_and_slide_with_snap()
@@ -25,10 +26,19 @@ var just_jumped = false
 
 onready var sprite = $Sprite
 onready var spriteAnimator = $SpriteAnimator
+onready var blinkAnimator = $BlinkAnimator
 onready var coyoteJumpTimer = $CoyoteJumpTimer
 onready var fireBulletTimer = $FireBulletTimer
 onready var gun = $Sprite/PlayerGun
 onready var muzzle = $Sprite/PlayerGun/Sprite/Muzzle
+
+
+"""
+FUNC SET_INVINCIBLE()
+
+"""
+func set_invincible(value):
+	invincible = value
 
 
 """
@@ -228,3 +238,10 @@ func move():
 		position.x = last_position.x
 	
 	
+"""
+FUNC _ON_HURTBOX_HIT()
+
+"""
+func _on_Hurtbox_hit(damage) -> void:
+	if not invincible:
+		blinkAnimator.play("Blink")
